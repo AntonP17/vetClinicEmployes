@@ -4,6 +4,7 @@ import by.antohakon.vetclinicemployes.dto.CreateEmployeDto;
 import by.antohakon.vetclinicemployes.dto.EmployeDto;
 import by.antohakon.vetclinicemployes.dto.mapper.EmployeMapper;
 import by.antohakon.vetclinicemployes.entity.Employe;
+import by.antohakon.vetclinicemployes.exceptions.EmployeDuplicationException;
 import by.antohakon.vetclinicemployes.exceptions.EmployeNotFoundException;
 import by.antohakon.vetclinicemployes.repository.EmployeRepository;
 import lombok.RequiredArgsConstructor;
@@ -42,16 +43,41 @@ public class EmployeServiceImpl implements EmployeService {
 
     @Override
     public EmployeDto createEmploye(CreateEmployeDto newEmploye) {
-        return null;
+
+        if (employeRepository.existsByLastName(newEmploye.lastName())){
+            throw new EmployeDuplicationException("Employee already exists with last name " + newEmploye.lastName());
+        }
+
+       Employe newEmployee = employeMapper.toEntity(newEmploye);
+
+        employeRepository.save(newEmployee);
+
+        return employeMapper.toDto(newEmployee);
+
     }
 
     @Override
     public EmployeDto updateEmploye(Long id, CreateEmployeDto newEmploye) {
-        return null;
+
+        Employe findEmploye = employeRepository.findById(id)
+                .orElseThrow(() -> new EmployeNotFoundException("Emplye not found with id " + id));
+
+        findEmploye.setLastName(newEmploye.lastName());
+        findEmploye.setFirstName(newEmploye.firstNme());
+        findEmploye.setRole(newEmploye.role());
+        employeRepository.save(findEmploye);
+
+        return employeMapper.toDto(findEmploye);
+
     }
 
     @Override
     public void deleteEmploye(Long id) {
+
+        Employe findEmploye = employeRepository.findById(id)
+                .orElseThrow(() -> new EmployeNotFoundException("Emplye not found with id " + id));
+
+        employeRepository.delete(findEmploye);
 
     }
 }

@@ -8,5 +8,5 @@ import java.awt.print.Pageable;
 
 @Repository
 public interface EmployeRepository extends JpaRepository<Employe,Long> {
-
+     boolean existsByLastName(String lastName);
 }
