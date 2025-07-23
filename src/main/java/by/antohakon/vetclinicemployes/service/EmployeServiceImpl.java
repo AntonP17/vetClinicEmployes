@@ -18,8 +18,8 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class EmployeServiceImpl implements EmployeService {
 
-     private final EmployeRepository employeRepository;
-     private final EmployeMapper employeMapper;
+    private final EmployeRepository employeRepository;
+    private final EmployeMapper employeMapper;
 
     @Override
     public Page<EmployeDto> getAllEmployes(Pageable pageable) {
@@ -28,9 +28,9 @@ public class EmployeServiceImpl implements EmployeService {
                 .map(employe -> EmployeDto.builder()
                         .id(employe.getId())
                         .lastName(employe.getLastName())
-                        .firstNme(employe.getFirstName())
+                        .firstName(employe.getFirstName())
                         .role(employe.getRole())
-                .build());
+                        .build());
     }
 
     @Override
@@ -39,20 +39,37 @@ public class EmployeServiceImpl implements EmployeService {
                 .orElseThrow(() -> new EmployeNotFoundException("Emplye not found with id " + id));
 
         return employeMapper.toDto(findEmploye);
+//        return EmployeDto.builder() - это если снова перестанет работать mapstruct
+//                .id(findEmploye.getId())
+//                .lastName(findEmploye.getLastName())
+//                .firstName(findEmploye.getFirstName())
+//                .role(findEmploye.getRole())
+//                .build();
     }
 
     @Override
-    public EmployeDto createEmploye(CreateEmployeDto newEmploye) {
+    public EmployeDto createEmploye(CreateEmployeDto employe) {
 
-        if (employeRepository.existsByLastName(newEmploye.lastName())){
-            throw new EmployeDuplicationException("Employee already exists with last name " + newEmploye.lastName());
+        if (employeRepository.existsByLastName(employe.lastName())) {
+            throw new EmployeDuplicationException("Employee already exists with last name " + employe.lastName());
         }
 
-       Employe newEmployee = employeMapper.toEntity(newEmploye);
+         Employe newEmployee = employeMapper.toEntity(employe);
+//        Employe newEmployee = Employe.builder()  - это если снова перестанет работать mapstruct
+//                .lastName(employe.lastName())
+//                .firstName(employe.firstName())
+//                .role(employe.role())
+//                .build();
 
-        employeRepository.save(newEmployee);
+        employeRepository.save(newEmployee); //
 
-        return employeMapper.toDto(newEmployee);
+      return employeMapper.toDto(newEmployee);
+//        return EmployeDto.builder() - это если снова перестанет работать mapstruct
+//                .id(newEmployee.getId())
+//                .lastName(newEmployee.getLastName())
+//                .firstName(newEmployee.getFirstName())
+//                .role(newEmployee.getRole())
+//                .build();
 
     }
 
@@ -63,7 +80,7 @@ public class EmployeServiceImpl implements EmployeService {
                 .orElseThrow(() -> new EmployeNotFoundException("Emplye not found with id " + id));
 
         findEmploye.setLastName(newEmploye.lastName());
-        findEmploye.setFirstName(newEmploye.firstNme());
+        findEmploye.setFirstName(newEmploye.firstName());
         findEmploye.setRole(newEmploye.role());
         employeRepository.save(findEmploye);
 
