@@ -24,6 +24,7 @@ public class EmployeServiceImpl implements EmployeService {
     @Override
     public Page<EmployeDto> getAllEmployes(Pageable pageable) {
 
+        log.info("getAllEmployes");
         return employeRepository.findAll(pageable)
                 .map(employe -> EmployeDto.builder()
                         .id(employe.getId())
@@ -35,6 +36,8 @@ public class EmployeServiceImpl implements EmployeService {
 
     @Override
     public EmployeDto getEmployeById(Long id) {
+
+        log.info("getEmployeById");
         Employe findEmploye = employeRepository.findById(id)
                 .orElseThrow(() -> new EmployeNotFoundException("Emplye not found with id " + id));
 
@@ -50,6 +53,7 @@ public class EmployeServiceImpl implements EmployeService {
     @Override
     public EmployeDto createEmploye(CreateEmployeDto employe) {
 
+        log.info("createEmploye");
         if (employeRepository.existsByLastName(employe.lastName())) {
             throw new EmployeDuplicationException("Employee already exists with last name " + employe.lastName());
         }
@@ -61,7 +65,7 @@ public class EmployeServiceImpl implements EmployeService {
 //                .role(employe.role())
 //                .build();
 
-        employeRepository.save(newEmployee); //
+        employeRepository.save(newEmployee);
 
       return employeMapper.toDto(newEmployee);
 //        return EmployeDto.builder() - это если снова перестанет работать mapstruct
@@ -76,6 +80,7 @@ public class EmployeServiceImpl implements EmployeService {
     @Override
     public EmployeDto updateEmploye(Long id, CreateEmployeDto newEmploye) {
 
+        log.info("updateEmploye");
         Employe findEmploye = employeRepository.findById(id)
                 .orElseThrow(() -> new EmployeNotFoundException("Emplye not found with id " + id));
 
@@ -91,6 +96,7 @@ public class EmployeServiceImpl implements EmployeService {
     @Override
     public void deleteEmploye(Long id) {
 
+        log.info("deleteEmploye");
         Employe findEmploye = employeRepository.findById(id)
                 .orElseThrow(() -> new EmployeNotFoundException("Emplye not found with id " + id));
 
