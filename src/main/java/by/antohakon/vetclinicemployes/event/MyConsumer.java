@@ -50,6 +50,7 @@ public class MyConsumer {
         }
 
         EmployeEvent employeEvent = EmployeEvent.builder()
+                .visitId(visitInfoDto.visitId())
                 .fullName(employee.getFirstName() + " " + employee.getLastName())
                 .build();
 
