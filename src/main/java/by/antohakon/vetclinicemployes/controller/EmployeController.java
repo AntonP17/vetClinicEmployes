@@ -12,6 +12,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/employes")
@@ -27,7 +29,7 @@ public class EmployeController {
 
     @GetMapping("/{employeId}")
     @ResponseStatus(value = HttpStatus.OK)
-    public EmployeDto getEmployee(@PathVariable Long employeId) {
+    public EmployeDto getEmployee(@PathVariable UUID employeId) {
         return employeService.getEmployeById(employeId);
     }
 
@@ -39,13 +41,13 @@ public class EmployeController {
 
     @PutMapping("/{employeId}")
     @ResponseStatus(value = HttpStatus.ACCEPTED)
-    public EmployeDto updateEmployee(@PathVariable Long employeId, @RequestBody CreateEmployeDto employeDto) {
+    public EmployeDto updateEmployee(@PathVariable UUID employeId, @RequestBody CreateEmployeDto employeDto) {
         return employeService.updateEmploye(employeId, employeDto);
     }
 
     @DeleteMapping("/{employeId}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void deleteEmployee(@PathVariable Long employeId) {
+    public void deleteEmployee(@PathVariable UUID employeId) {
         employeService.deleteEmploye(employeId);
     }
 

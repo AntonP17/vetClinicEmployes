@@ -6,12 +6,14 @@ import by.antohakon.vetclinicemployes.entity.Employe;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.UUID;
+
 public interface EmployeService {
 
     Page<EmployeDto> getAllEmployes(Pageable pageable);
-    EmployeDto getEmployeById(Long id);
+    EmployeDto getEmployeById(UUID employeeId);
     EmployeDto createEmploye(CreateEmployeDto newEmploye);
-    EmployeDto updateEmploye(Long id, CreateEmployeDto newEmploye);
-    void deleteEmploye(Long id);
+    EmployeDto updateEmploye(UUID id, CreateEmployeDto newEmploye);
+    void deleteEmploye(UUID id);
 
 }
