@@ -42,6 +42,7 @@ public class EmployeServiceImpl implements EmployeService {
         log.info("getEmployeById");
         Employe findEmploye = employeRepository.findByEmployeeId(id);
         if (findEmploye == null) {
+            log.error("getEmployeById: employeId not found");
             throw new  EmployeNotFoundException("Emplye not found with id " + id);
         }
 
@@ -59,6 +60,7 @@ public class EmployeServiceImpl implements EmployeService {
 
         log.info("createEmploye");
         if (employeRepository.existsByLastName(employe.lastName())) {
+            log.error("lastName already exists");
             throw new EmployeDuplicationException("Employee already exists with last name " + employe.lastName());
         }
 
@@ -88,6 +90,7 @@ public class EmployeServiceImpl implements EmployeService {
         log.info("updateEmploye");
         Employe findEmploye = employeRepository.findByEmployeeId(id);
         if (findEmploye == null) {
+            log.error("Employee not found with id " + id);
            throw new EmployeNotFoundException("Emplye not found with id " + id);
         }
 
@@ -113,6 +116,7 @@ public class EmployeServiceImpl implements EmployeService {
         log.info("deleteEmploye");
         Employe findEmploye = employeRepository.findByEmployeeId(id);
         if (findEmploye == null) {
+            log.error("Employee not found with id " + id);
            throw new EmployeNotFoundException("Emplye not found with id " + id);
         }
 
