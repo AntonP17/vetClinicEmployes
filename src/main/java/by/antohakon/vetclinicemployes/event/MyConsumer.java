@@ -30,7 +30,7 @@ public class MyConsumer {
             groupId = "doctorsGroup",
             containerFactory = "doctorsKafkaListenerContainerFactory"
     )
-    public void listenDoctors(String message) throws JsonProcessingException {
+    public void listenDoctors(String message)  {
 
         VisitInfoDto visitInfoDto = null;
         try {
@@ -44,29 +44,58 @@ public class MyConsumer {
 
         log.info("try find doctor by id : {}", visitInfoDto.doctorId());
 
-        Employe employee = employeRepository.findByEmployeeId(visitInfoDto.doctorId());
-
-        if (employee == null) {
-            String errorMessage = "doctor not found with id " + visitInfoDto.doctorId();
-            ExceptionNotFoundDto exceptionNotFoundDto = new ExceptionNotFoundDto(errorMessage, visitInfoDto.visitId());
-            String errorResponse = objectMapper.writeValueAsString(exceptionNotFoundDto);
-            kafkaTemplate.send("exceptions", errorResponse);
-            log.error(errorMessage);
-        }
-
-        EmployeEvent employeEvent = EmployeEvent.builder()
-                .visitId(visitInfoDto.visitId())
-                .fullName(employee.getFirstName() + " " + employee.getLastName())
-                .build();
-
-        log.info("return doctor : {}", employeEvent.toString());
         try {
+
+            Employe employee = employeRepository.findByEmployeeId(visitInfoDto.doctorId());
+
+            EmployeEvent employeEvent = EmployeEvent.builder()
+                    .visitId(visitInfoDto.visitId())
+                    .fullName(employee.getFirstName() + " " + employee.getLastName())
+                    .build();
+
+            log.info("return doctor : {}", employeEvent.toString());
+
             String json = objectMapper.writeValueAsString(employeEvent);
             kafkaTemplate.send("doctors_response", json);
+
+        } catch (NullPointerException e) {
+
+            String errorMessage = "doctor not found with id " + visitInfoDto.doctorId();
+            ExceptionNotFoundDto exceptionNotFoundDto = new ExceptionNotFoundDto(errorMessage, visitInfoDto.visitId());
+            String errorResponse = null;
+
+            try {
+
+                errorResponse = objectMapper.writeValueAsString(exceptionNotFoundDto);
+
+            } catch (JsonProcessingException ex) {
+
+                log.error("Failed to serialize order: {}", e.getMessage());
+            }
+
+            kafkaTemplate.send("exceptions", errorResponse);
+            log.error(errorMessage);
+
         } catch (JsonProcessingException e) {
+
             log.error("Failed to serialize order: {}", e.getMessage());
+
         }
 
     }
 
 }
+
+// if (employee == null) {
+//String errorMessage = "doctor not found with id " + visitInfoDto.doctorId();
+//ExceptionNotFoundDto exceptionNotFoundDto = new ExceptionNotFoundDto(errorMessage, visitInfoDto.visitId());
+//String errorResponse = objectMapper.writeValueAsString(exceptionNotFoundDto);
+//            kafkaTemplate.send("exceptions", errorResponse);
+//            log.error(errorMessage);
+//        }
+//    try {
+//String json = objectMapper.writeValueAsString(employeEvent);
+//            kafkaTemplate.send("doctors_response", json);
+//        } catch (JsonProcessingException e) {
+//        log.error("Failed to serialize order: {}", e.getMessage());
+//        }
