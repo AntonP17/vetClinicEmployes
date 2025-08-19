@@ -1,6 +1,7 @@
 package by.antohakon.vetclinicemployes.event;
 
 import by.antohakon.vetclinicemployes.dto.EmployeEvent;
+import by.antohakon.vetclinicemployes.dto.ExceptionNotFoundDto;
 import by.antohakon.vetclinicemployes.dto.VisitInfoDto;
 import by.antohakon.vetclinicemployes.entity.Employe;
 import by.antohakon.vetclinicemployes.repository.EmployeRepository;
@@ -23,12 +24,13 @@ public class MyConsumer {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final EmployeRepository employeRepository;
 
+
     @KafkaListener(
             topics = "doctors",
             groupId = "doctorsGroup",
             containerFactory = "doctorsKafkaListenerContainerFactory"
     )
-    public void listenDoctors(String message) {
+    public void listenDoctors(String message) throws JsonProcessingException {
 
         VisitInfoDto visitInfoDto = null;
         try {
@@ -43,9 +45,12 @@ public class MyConsumer {
         log.info("try find doctor by id : {}", visitInfoDto.doctorId());
 
         Employe employee = employeRepository.findByEmployeeId(visitInfoDto.doctorId());
+
         if (employee == null) {
             String errorMessage = "doctor not found with id " + visitInfoDto.doctorId();
-            kafkaTemplate.send("exceptions", errorMessage);
+            ExceptionNotFoundDto exceptionNotFoundDto = new ExceptionNotFoundDto(errorMessage, visitInfoDto.visitId());
+            String errorResponse = objectMapper.writeValueAsString(exceptionNotFoundDto);
+            kafkaTemplate.send("exceptions", errorResponse);
             log.error(errorMessage);
         }
 
