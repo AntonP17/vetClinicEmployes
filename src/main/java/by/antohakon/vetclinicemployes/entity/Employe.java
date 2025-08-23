@@ -9,7 +9,10 @@ import lombok.NoArgsConstructor;
 import java.util.UUID;
 
 @Entity
-@Table(name = "employes")
+@Table(name = "employes", indexes = {
+        @Index(columnList = "employeeId", name = "employe_uuid_index"),
+        @Index(columnList = "role", name = "employe_role_index")
+})
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -20,8 +23,9 @@ public class Employe {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false)
     private UUID employeeId;
-
+    @Column(unique = true, nullable = false)
     private String lastName;
 
     private String firstName;
