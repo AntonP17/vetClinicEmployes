@@ -9,6 +9,9 @@ import by.antohakon.vetclinicemployes.exceptions.EmployeNotFoundException;
 import by.antohakon.vetclinicemployes.repository.EmployeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -37,13 +40,14 @@ public class EmployeServiceImpl implements EmployeService {
     }
 
     @Override
-    public EmployeDto getEmployeById(UUID id) {
+    @Cacheable(value = "employe_cache", key = "#emploeId")
+    public EmployeDto getEmployeById(UUID emploeId) {
 
         log.info("getEmployeById");
-        Employe findEmploye = employeRepository.findByEmployeeId(id);
+        Employe findEmploye = employeRepository.findByEmployeeId(emploeId);
         if (findEmploye == null) {
             log.error("getEmployeById: employeId not found");
-            throw new  EmployeNotFoundException("Emplye not found with id " + id);
+            throw new  EmployeNotFoundException("Emplye not found with id " + emploeId);
         }
 
       //  return employeMapper.toDto(findEmploye);
@@ -56,6 +60,7 @@ public class EmployeServiceImpl implements EmployeService {
     }
 
     @Override
+    @CachePut(value = "employe_cache", key = "#result.doctorId")
     public EmployeDto createEmploye(CreateEmployeDto employe) {
 
         log.info("createEmploye");
@@ -85,13 +90,14 @@ public class EmployeServiceImpl implements EmployeService {
     }
 
     @Override
-    public EmployeDto updateEmploye(UUID id, CreateEmployeDto newEmploye) {
+    @CachePut(value = "employe_cache", key = "#employeId")
+    public EmployeDto updateEmploye(UUID employeId, CreateEmployeDto newEmploye) {
 
         log.info("updateEmploye");
-        Employe findEmploye = employeRepository.findByEmployeeId(id);
+        Employe findEmploye = employeRepository.findByEmployeeId(employeId);
         if (findEmploye == null) {
-            log.error("Employee not found with id " + id);
-           throw new EmployeNotFoundException("Emplye not found with id " + id);
+            log.error("Employee not found with id " + employeId);
+           throw new EmployeNotFoundException("Emplye not found with id " + employeId);
         }
 
         findEmploye.setLastName(newEmploye.lastName());
@@ -111,13 +117,14 @@ public class EmployeServiceImpl implements EmployeService {
     }
 
     @Override
-    public void deleteEmploye(UUID id) {
+    @CacheEvict(value = "employe_cache", key = "#employeId")
+    public void deleteEmploye(UUID employeId) {
 
         log.info("deleteEmploye");
-        Employe findEmploye = employeRepository.findByEmployeeId(id);
+        Employe findEmploye = employeRepository.findByEmployeeId(employeId);
         if (findEmploye == null) {
-            log.error("Employee not found with id " + id);
-           throw new EmployeNotFoundException("Emplye not found with id " + id);
+            log.error("Employee not found with id " + employeId);
+           throw new EmployeNotFoundException("Emplye not found with id " + employeId);
         }
 
         employeRepository.delete(findEmploye);
