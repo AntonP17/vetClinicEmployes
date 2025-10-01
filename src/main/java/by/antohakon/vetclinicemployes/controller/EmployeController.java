@@ -5,6 +5,7 @@ import by.antohakon.vetclinicemployes.dto.EmployeDto;
 import by.antohakon.vetclinicemployes.entity.Employe;
 import by.antohakon.vetclinicemployes.service.EmployeService;
 import by.antohakon.vetclinicemployes.service.EmployeServiceImpl;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+@Tag(name = "employe_controller")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/employes")
