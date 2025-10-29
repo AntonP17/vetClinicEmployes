@@ -99,6 +99,7 @@
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
             <version>4.3.0</version>
         </dependency>
+
     </dependencies>
 
     <build>

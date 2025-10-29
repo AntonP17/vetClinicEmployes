@@ -6,6 +6,7 @@ import by.antohakon.vetclinicemployes.entity.Employe;
 import by.antohakon.vetclinicemployes.service.EmployeService;
 import by.antohakon.vetclinicemployes.service.EmployeServiceImpl;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,13 +38,13 @@ public class EmployeController {
 
     @PostMapping
     @ResponseStatus(value = HttpStatus.CREATED)
-    public EmployeDto addEmployee(@RequestBody CreateEmployeDto employeDto) {
+    public EmployeDto addEmployee(@RequestBody @Valid CreateEmployeDto employeDto) {
         return employeService.createEmploye(employeDto);
     }
 
     @PutMapping("/{employeId}")
     @ResponseStatus(value = HttpStatus.ACCEPTED)
-    public EmployeDto updateEmployee(@PathVariable UUID employeId, @RequestBody CreateEmployeDto employeDto) {
+    public EmployeDto updateEmployee(@PathVariable UUID employeId, @RequestBody @Valid CreateEmployeDto employeDto) {
         return employeService.updateEmploye(employeId, employeDto);
     }
 
