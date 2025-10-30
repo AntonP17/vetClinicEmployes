@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,6 +14,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import java.time.Instant;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RestControllerAdvice
 @Slf4j
@@ -28,7 +31,7 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(EmployeDuplicationException.class)
-    public ResponseEntity<ErrorResponse> handle(EmployeDuplicationException e) {
+    public ResponseEntity<ErrorResponse> handleDuplicate(EmployeDuplicationException e) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(
@@ -38,7 +41,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(EmployeNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handle(EmployeNotFoundException e) {
+    public ResponseEntity<ErrorResponse> handleEmployeNotFound(EmployeNotFoundException e) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(
@@ -83,6 +86,53 @@ public class GlobalExceptionHandler {
                         e.getClass().getSimpleName(),
                         e.getMessage()
                 ));
+
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+
+        String errorMessage = extractUserFriendlyMessage(e);
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(
+                        e.getClass().getSimpleName(),
+                        errorMessage
+                ));
+
+    }
+
+    private String extractUserFriendlyMessage(HttpMessageNotReadableException e) {
+
+        String originalMessage = e.getMessage();
+
+        // Для enum ошибок
+        if (originalMessage != null && originalMessage.contains("not one of the values accepted for Enum class")) {
+            return extractEnumErrorMessage(originalMessage);
+        }
+
+        // Для других ошибок парсинга JSON
+        if (originalMessage != null && originalMessage.contains("JSON parse error")) {
+            return "Некорректный формат JSON данных";
+        }
+
+        return "Ошибка в формате данных";
+
+    }
+
+    private String extractEnumErrorMessage(String originalMessage) {
+
+        // Регулярное выражение для извлечения значений enum
+        Pattern pattern = Pattern.compile("\\[([^]]+)\\]");
+        Matcher matcher = pattern.matcher(originalMessage);
+
+        if (matcher.find()) {
+            String enumValues = matcher.group(1);
+            return "Должен быть один из типов: " + enumValues;
+        }
+
+        return "Некорректное значение";
 
     }
 

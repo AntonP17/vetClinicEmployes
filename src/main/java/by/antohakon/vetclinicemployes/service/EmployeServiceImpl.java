@@ -32,7 +32,7 @@ public class EmployeServiceImpl implements EmployeService {
         log.info("getAllEmployes");
         return employeRepository.findAll(pageable)
                 .map(employe -> EmployeDto.builder()
-                        .doctorId(employe.getEmployeeId())
+                        .employeeId(employe.getEmployeeId())
                         .lastName(employe.getLastName())
                         .firstName(employe.getFirstName())
                         .role(employe.getRole())
@@ -40,27 +40,21 @@ public class EmployeServiceImpl implements EmployeService {
     }
 
     @Override
-    @Cacheable(value = "employe_cache", key = "#emploeId")
-    public EmployeDto getEmployeById(UUID emploeId) {
+    @Cacheable(value = "employe_cache", key = "#employeeId")
+    public EmployeDto getEmployeById(UUID employeeId) {
 
         log.info("getEmployeById");
-        Employe findEmploye = employeRepository.findByEmployeeId(emploeId);
+        Employe findEmploye = employeRepository.findByEmployeeId(employeeId);
         if (findEmploye == null) {
             log.error("getEmployeById: employeId not found");
-            throw new  EmployeNotFoundException("Emplye not found with id " + emploeId);
+            throw new EmployeNotFoundException("Emplye not found with id " + employeeId);
         }
 
-      //  return employeMapper.toDto(findEmploye);
-        return EmployeDto.builder()
-                .doctorId(findEmploye.getEmployeeId())
-                .lastName(findEmploye.getLastName())
-                .firstName(findEmploye.getFirstName())
-                .role(findEmploye.getRole())
-                .build();
+        return employeMapper.toDto(findEmploye);
     }
 
     @Override
-    @CachePut(value = "employe_cache", key = "#result.doctorId")
+    @CachePut(value = "employe_cache", key = "#result.employeeId()")
     public EmployeDto createEmploye(CreateEmployeDto employe) {
 
         log.info("createEmploye");
@@ -69,23 +63,12 @@ public class EmployeServiceImpl implements EmployeService {
             throw new EmployeDuplicationException("Employee already exists with last name " + employe.lastName());
         }
 
-        // Employe newEmployee = employeMapper.toEntity(employe);
-        Employe newEmployee = Employe.builder()
-                .employeeId(UUID.randomUUID())
-                .lastName(employe.lastName())
-                .firstName(employe.firstName())
-                .role(employe.role())
-                .build();
+        Employe newEmployee = employeMapper.toEntity(employe);
 
         employeRepository.save(newEmployee);
 
-  //    return employeMapper.toDto(newEmployee);
-        return EmployeDto.builder()
-                .doctorId(newEmployee.getEmployeeId())
-                .lastName(newEmployee.getLastName())
-                .firstName(newEmployee.getFirstName())
-                .role(newEmployee.getRole())
-                .build();
+        return employeMapper.toDto(newEmployee);
+
 
     }
 
@@ -97,7 +80,7 @@ public class EmployeServiceImpl implements EmployeService {
         Employe findEmploye = employeRepository.findByEmployeeId(employeId);
         if (findEmploye == null) {
             log.error("Employee not found with id " + employeId);
-           throw new EmployeNotFoundException("Emplye not found with id " + employeId);
+            throw new EmployeNotFoundException("Emplye not found with id " + employeId);
         }
 
         findEmploye.setLastName(newEmploye.lastName());
@@ -105,15 +88,8 @@ public class EmployeServiceImpl implements EmployeService {
         findEmploye.setRole(newEmploye.role());
         employeRepository.save(findEmploye);
 
-       // return employeMapper.toDto(findEmploye);
-        EmployeDto employeDto = EmployeDto.builder()
-                .doctorId(findEmploye.getEmployeeId())
-                .lastName(findEmploye.getLastName())
-                .firstName(findEmploye.getFirstName())
-                .role(findEmploye.getRole())
-                .build();
+         return employeMapper.toDto(findEmploye);
 
-        return employeDto;
     }
 
     @Override
@@ -124,7 +100,7 @@ public class EmployeServiceImpl implements EmployeService {
         Employe findEmploye = employeRepository.findByEmployeeId(employeId);
         if (findEmploye == null) {
             log.error("Employee not found with id " + employeId);
-           throw new EmployeNotFoundException("Emplye not found with id " + employeId);
+            throw new EmployeNotFoundException("Emplye not found with id " + employeId);
         }
 
         employeRepository.delete(findEmploye);

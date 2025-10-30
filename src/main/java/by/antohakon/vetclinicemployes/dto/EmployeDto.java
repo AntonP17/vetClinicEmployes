@@ -6,5 +6,5 @@ import lombok.Builder;
 import java.util.UUID;
 
 @Builder
-public record EmployeDto(UUID doctorId, String lastName, String firstName, Role role) {
+public record EmployeDto(UUID employeeId, String lastName, String firstName, Role role) {
 }
