@@ -30,13 +30,17 @@ public class EmployeServiceImpl implements EmployeService {
     public Page<EmployeDto> getAllEmployes(Pageable pageable) {
 
         log.info("getAllEmployes");
+//        return employeRepository.findAll(pageable)
+//                .map(employe -> EmployeDto.builder()
+//                        .employeeId(employe.getEmployeeId())
+//                        .lastName(employe.getLastName())
+//                        .firstName(employe.getFirstName())
+//                        .role(employe.getRole())
+//                        .build());
+
         return employeRepository.findAll(pageable)
-                .map(employe -> EmployeDto.builder()
-                        .employeeId(employe.getEmployeeId())
-                        .lastName(employe.getLastName())
-                        .firstName(employe.getFirstName())
-                        .role(employe.getRole())
-                        .build());
+                .map(employeMapper::toDto);
+
     }
 
     @Override
