@@ -68,20 +68,20 @@ public class EmployeServiceTest {
                 .build();
 
         EmployeDto employeDto = EmployeDto.builder()
-                .doctorId(employe.getEmployeeId())
+                .employeeId(employe.getEmployeeId())
                 .lastName(employe.getLastName())
                 .firstName(employe.getFirstName())
                 .role(employe.getRole())
                 .build();
 
         when(employeRepository.findByEmployeeId(employeeId)).thenReturn(employe);
-//        when(employeMapper.toDto(employe))
-//                .thenReturn(employeDto);
+        when(employeMapper.toDto(employe))
+                .thenReturn(employeDto);
 
         EmployeDto result = employeService.getEmployeById(employeeId);
 
         assertNotNull(result);
-        assertEquals(employeeId, result.doctorId());
+        assertEquals(employeeId, result.employeeId());
         assertEquals(employeDto.lastName(), result.lastName());
         assertEquals(employeDto.firstName(), result.firstName());
         assertEquals(employeDto.role(), result.role());
@@ -107,7 +107,7 @@ public class EmployeServiceTest {
                 .build();
 
         EmployeDto expectedDto = EmployeDto.builder()
-                .doctorId(newEmploye.getEmployeeId())
+                .employeeId(TEST_UUID)
                 .lastName(newEmploye.getLastName())
                 .firstName(newEmploye.getFirstName())
                 .role(newEmploye.getRole())
@@ -115,15 +115,15 @@ public class EmployeServiceTest {
 
         when(employeRepository.existsByLastName(createEmployeDto.lastName()))
                 .thenReturn(false);
-        when(employeRepository.save(newEmploye))
-                .thenReturn(newEmploye);
-        //        when(employeMapper.toDto(newEmploye)).thenReturn(expectedDto);
+        when(employeMapper.toEntity(createEmployeDto)).thenReturn(newEmploye);
+        when(employeRepository.save(newEmploye)).thenReturn(newEmploye);
+        when(employeMapper.toDto(newEmploye)).thenReturn(expectedDto);
 
         EmployeDto result = employeService.createEmploye(createEmployeDto);
 
 
         assertNotNull(result);
-        assertEquals(expectedDto.doctorId(), result.doctorId());
+        assertEquals(expectedDto.employeeId(), result.employeeId());
         assertEquals(expectedDto.lastName(), result.lastName());
         assertEquals(expectedDto.firstName(), result.firstName());
         assertEquals(expectedDto.role(), result.role());
@@ -150,15 +150,24 @@ public class EmployeServiceTest {
                 .role(Role.ADMIN)
                 .build();
 
+        EmployeDto expectedDto = EmployeDto.builder()
+                .employeeId(employeeId)
+                .lastName("НоваяФамилия")
+                .firstName("НовоеИмя")
+                .role(Role.ADMIN)
+                .build();
+
         when(employeRepository.findByEmployeeId(employeeId))
                 .thenReturn(existingEmploye);
         when(employeRepository.save(any(Employe.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
+        when(employeMapper.toDto(any(Employe.class)))
+                .thenReturn(expectedDto);
 
         EmployeDto result = employeService.updateEmploye(employeeId, updateDto);
 
         assertNotNull(result);
-        assertEquals(employeeId, result.doctorId());
+        assertEquals(employeeId, result.employeeId());
         assertEquals("НоваяФамилия", result.lastName());
         assertEquals("НовоеИмя", result.firstName());
         assertEquals(Role.ADMIN, result.role());
