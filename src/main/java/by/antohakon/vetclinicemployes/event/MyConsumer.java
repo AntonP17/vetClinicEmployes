@@ -62,8 +62,7 @@ public class MyConsumer {
         sendSuccessResponse(employeEvent);
     }
 
-    @Transactional(readOnly = true)
-    public Employe findDoctorById(UUID doctorId) {
+    private Employe findDoctorById(UUID doctorId) {
         log.info("Searching doctor by ID: {}", doctorId);
         return Optional.ofNullable(employeRepository.findByEmployeeId(doctorId))
                 .orElseThrow(() -> new EmployeNotFoundException("Doctor not found with id: " + doctorId));
