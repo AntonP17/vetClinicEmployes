@@ -15,6 +15,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -54,13 +55,15 @@ public class MyConsumer {
         return visitInfoDto;
     }
 
-    private void processDoctorRequest(VisitInfoDto visitInfoDto) throws JsonProcessingException {
+    @Transactional
+    public void processDoctorRequest(VisitInfoDto visitInfoDto) throws JsonProcessingException {
         Employe employee = findDoctorById(visitInfoDto.doctorId());
         EmployeEvent employeEvent = createEmployeEvent(visitInfoDto, employee);
         sendSuccessResponse(employeEvent);
     }
 
-    private Employe findDoctorById(UUID doctorId) {
+    @Transactional(readOnly = true)
+    public Employe findDoctorById(UUID doctorId) {
         log.info("Searching doctor by ID: {}", doctorId);
         return Optional.ofNullable(employeRepository.findByEmployeeId(doctorId))
                 .orElseThrow(() -> new EmployeNotFoundException("Doctor not found with id: " + doctorId));
