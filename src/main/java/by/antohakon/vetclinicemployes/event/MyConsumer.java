@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -29,10 +30,15 @@ public class MyConsumer {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final EmployeRepository employeRepository;
 
+    @Value("${kafka.topic.successfull}")
+    private String successfullTopic;
+    @Value("${kafka.topic.exception}")
+    private String exceptionTopic;
+
 
     @KafkaListener(
-            topics = "doctors",
-            groupId = "doctorsGroup",
+            topics = "${kafka.topic.find.doctor}",
+            groupId = "${kafka.group.find.doctor}",
             containerFactory = "doctorsKafkaListenerContainerFactory"
     )
     public void listenDoctors(String message) {
@@ -78,7 +84,7 @@ public class MyConsumer {
     private void sendSuccessResponse(EmployeEvent employeEvent) throws JsonProcessingException {
         log.info("Sending response: {}", employeEvent);
         String json = objectMapper.writeValueAsString(employeEvent);
-        kafkaTemplate.send("doctors_response", json);
+        kafkaTemplate.send(successfullTopic, json);
     }
 
     private void handleDoctorNotFound(EmployeNotFoundException e, String originalMessage) {
@@ -96,7 +102,7 @@ public class MyConsumer {
     private void sendErrorResponse(ExceptionNotFoundDto errorDto) {
         try {
             String errorResponse = objectMapper.writeValueAsString(errorDto);
-            kafkaTemplate.send("exceptions", errorResponse);
+            kafkaTemplate.send(exceptionTopic, errorResponse);
         } catch (JsonProcessingException e) {
             log.error("Failed to serialize error response: {}", e.getMessage());
         }

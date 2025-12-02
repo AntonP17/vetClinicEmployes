@@ -31,6 +31,14 @@ public class KafkaConfig {
     }
 
     @Bean
+    public NewTopic doctorNotFoundTopic() {
+        return TopicBuilder.name("doctor_exception_topic")
+                .partitions(3)
+                .replicas(1)
+                .build();
+    }
+
+    @Bean
     public ConcurrentKafkaListenerContainerFactory<String, String> doctorsKafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConcurrency(3);
