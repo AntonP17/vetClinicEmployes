@@ -39,6 +39,10 @@ public class WebSecurityConfiguration {
                 .password("{noop}user")
                 .roles("USER")
                 .build());
+        userDetailsManager.createUser(users.username("doctor")
+                .password("{noop}doctor")
+                .roles("DOCTOR")
+                .build());
         return userDetailsManager;
     }
 }
